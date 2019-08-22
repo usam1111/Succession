@@ -6,7 +6,14 @@ namespace Itach.Succession
 {
     public class SectionId
     {
+        /// <summary>
+        /// セクションのパス
+        /// </summary>
         public string path { get; private set; }
+
+        /// <summary>
+        /// セクションIDの配列
+        /// </summary>
         public List<string> hierarchies { get; private set; }
 
         /// <summary>

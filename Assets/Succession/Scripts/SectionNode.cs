@@ -6,10 +6,23 @@ namespace Itach.Succession
 {
     public class SectionNode
     {
+        /// <summary>
+        /// 対応するセクションID
+        /// </summary>
         public string id;
+
+        /// <summary>
+        /// 対応するセクション
+        /// </summary>
         public SectionBase section;
+
         private List<SectionNode> children = new List<SectionNode>();
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="section"></param>
         public SectionNode(string id, SectionBase section)
         {
             this.id = id;

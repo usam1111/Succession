@@ -226,17 +226,31 @@ namespace Itach.Succession
             gotoManageCoroutine = rootObject.StartCoroutine(GotoManage(lastDepartedSectionId, state));
         }
 
+        /// <summary>
+        /// パスからセクションを取得
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public SectionBase GetSection(string path)
+        {
+            List<string> pathList = GetPathList();
+            foreach (var item in pathList)
+            {
+                if (item == path)
+                {
+                    var secId = new SectionId(path);
+                    return GetNode(secId, secId.hierarchies.Count - 1).section;
+                }
+            }
+            return null;
+        }
 
         /// <summary>
         /// 全セクションへのパスを出力
         /// </summary>
         public void OutputAllSectionPath()
         {
-            List<string> pathList = new List<string>();
-            foreach (var node in nodes)
-            {
-                node.AddPathList("/", pathList);
-            }
+            List<string> pathList = GetPathList();
             foreach (var item in pathList)
             {
                 Debug.Log("[All section path] : " + item);
@@ -251,16 +265,26 @@ namespace Itach.Succession
         {
             if (path == "") return true;
 
-            List<string> pathList = new List<string>();
-            foreach (var node in nodes)
-            {
-                node.AddPathList("/", pathList);
-            }
+            List<string> pathList = GetPathList();
             foreach (var item in pathList)
             {
                 if (item == path) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 存在するパス全てを返す
+        /// </summary>
+        /// <returns></returns>
+        private List<string> GetPathList()
+        {
+            List<string> pathList = new List<string>();
+            foreach (var node in nodes)
+            {
+                node.AddPathList("/", pathList);
+            }
+            return pathList;
         }
 
         /// <summary>
