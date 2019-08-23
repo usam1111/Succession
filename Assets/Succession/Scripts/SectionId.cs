@@ -34,7 +34,7 @@ namespace Itach.Succession
             if (baseSectionId != null)
             {
                 var _tempHierarchies = path.Split('/');
-                var _baseDepth = Mathf.Max(baseSectionId.hierarchies.Count - 1, 0);
+                var _baseDepth = Mathf.Max(baseSectionId.hierarchies.Count , 0);
                 var _additionPath = "";
                 for (int i = 0; i < _tempHierarchies.Length; i++)
                 {
