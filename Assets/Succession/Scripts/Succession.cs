@@ -8,17 +8,17 @@ namespace Itach.Succession
     public class Succession
     {
         /// <summary>
-        /// 出発地
+        /// 出発地（移動完了時に更新される）
         /// </summary>
         public SectionId departedSectionId { get; private set; } = new SectionId();
 
         /// <summary>
-        /// 現在地
+        /// 現在地（移動中の場合は移動処理が行われているセクション）
         /// </summary>
         public SectionId currentSectionId { get; private set; } = new SectionId();
 
         /// <summary>
-        /// 目的地
+        /// 目的地（移動開始時に更新される）
         /// </summary>
         public SectionId destinedSectionId { get; private set; } = new SectionId();
 
@@ -79,7 +79,7 @@ namespace Itach.Succession
         /// </param>
         public void Goto(string path)
         {
-            var tempSectionId = new SectionId(path, currentSectionId);
+            var tempSectionId = new SectionId(path, departedSectionId);
 
             // パスが存在しない
             if (!IsExistPath(tempSectionId.path)) return;
@@ -98,7 +98,7 @@ namespace Itach.Succession
             // 現在のパスと同じ
             if (tempSectionId.path == currentSectionId.path) return;
 
-            departedSectionId = currentSectionId;
+            
             destinedSectionId = tempSectionId;
             reservedSectionId = null;
 
@@ -131,6 +131,7 @@ namespace Itach.Succession
                 node = GetNode(lastDepartedSectionId, nowDepth);
                 if (node != null)
                 {
+                    currentSectionId = new SectionId(lastDepartedSectionId.GetPathFromDepth(nowDepth + 1));
                     node.section.id = node.id;
                     var e = node.section.AtSectionGoto();
                     while (e.MoveNext()) yield return e.Current;
@@ -156,6 +157,7 @@ namespace Itach.Succession
                 node = GetNode(lastDepartedSectionId, nowDepth--);
                 if (node != null)
                 {
+                    currentSectionId = new SectionId(lastDepartedSectionId.GetPathFromDepth(nowDepth + 2));
                     node.section.id = node.id;
                     var e = node.section.AtSectionUnload();
                     while (e.MoveNext()) yield return e.Current;
@@ -175,6 +177,7 @@ namespace Itach.Succession
                 node = GetNode(destinedSectionId, ++nowDepth);
                 if (node != null)
                 {
+                    currentSectionId = new SectionId(destinedSectionId.GetPathFromDepth(nowDepth + 1));
                     node.section.id = node.id;
                     var e = node.section.AtSectionLoad();
                     while (e.MoveNext()) yield return e.Current;
@@ -192,6 +195,7 @@ namespace Itach.Succession
             node = GetNode(destinedSectionId, destinedDepth);
             if (node != null)
             {
+                currentSectionId = destinedSectionId;
                 node.section.id = node.id;
                 var e = node.section.AtSectionInit();
                 while (e.MoveNext()) yield return e.Current;
@@ -204,7 +208,9 @@ namespace Itach.Succession
             }
 
             state = State.Idling;
-            currentSectionId = destinedSectionId;
+            departedSectionId
+                = currentSectionId
+                    = destinedSectionId;
         }
 
         /// <summary>
