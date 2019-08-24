@@ -15,7 +15,7 @@ namespace Itach.Succession
         /// <summary>
         /// 初期化
         /// </summary>
-        public abstract SectionNode Initialize(string name);
+        public abstract SectionNode Initialize(string id);
 
         /// <summary>
         /// ノードを新規取得
