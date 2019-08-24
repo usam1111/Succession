@@ -37,6 +37,16 @@ namespace Itach.Succession
         /// </summary>
         public bool isMoving => (state != State.Idling);
 
+        /// <summary>
+        /// セクション移動開始イベント
+        /// </summary>
+        public event EventHandler processStart;
+
+        /// <summary>
+        /// セクション移動終了イベント
+        /// </summary>
+        public event EventHandler processComplete;
+
         private List<SectionNode> nodes = new List<SectionNode>();
         private Coroutine gotoManageCoroutine;
         private bool isCoroutineBreak;
@@ -125,6 +135,9 @@ namespace Itach.Succession
             bool isDestination = false;
             SectionNode node;
 
+            // 移動開始イベント発信
+            processStart?.Invoke(this, EventArgs.Empty);
+
             // Goto
             if (prevState == State.Idling || prevState == State.Initializing)
             {
@@ -211,6 +224,9 @@ namespace Itach.Succession
             departedSectionId
                 = currentSectionId
                     = destinedSectionId;
+
+            // 移動終了イベント発信
+            processComplete?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
