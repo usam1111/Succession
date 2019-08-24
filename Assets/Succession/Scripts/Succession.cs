@@ -8,17 +8,17 @@ namespace Itach.Succession
     public class Succession
     {
         /// <summary>
-        /// 出発地
+        /// 出発地（移動完了時に更新される）
         /// </summary>
         public SectionId departedSectionId { get; private set; } = new SectionId();
 
         /// <summary>
-        /// 現在地
+        /// 現在地（移動中の場合は移動処理が行われているセクション）
         /// </summary>
         public SectionId currentSectionId { get; private set; } = new SectionId();
 
         /// <summary>
-        /// 目的地
+        /// 目的地（移動開始時に更新される）
         /// </summary>
         public SectionId destinedSectionId { get; private set; } = new SectionId();
 
@@ -36,6 +36,16 @@ namespace Itach.Succession
         /// セクション間を移動している状態か
         /// </summary>
         public bool isMoving => (state != State.Idling);
+
+        /// <summary>
+        /// セクション移動開始イベント
+        /// </summary>
+        public event EventHandler processStart;
+
+        /// <summary>
+        /// セクション移動終了イベント
+        /// </summary>
+        public event EventHandler processComplete;
 
         private List<SectionNode> nodes = new List<SectionNode>();
         private Coroutine gotoManageCoroutine;
@@ -79,7 +89,7 @@ namespace Itach.Succession
         /// </param>
         public void Goto(string path)
         {
-            var tempSectionId = new SectionId(path, currentSectionId);
+            var tempSectionId = new SectionId(path, departedSectionId);
 
             // パスが存在しない
             if (!IsExistPath(tempSectionId.path)) return;
@@ -98,7 +108,7 @@ namespace Itach.Succession
             // 現在のパスと同じ
             if (tempSectionId.path == currentSectionId.path) return;
 
-            departedSectionId = currentSectionId;
+            
             destinedSectionId = tempSectionId;
             reservedSectionId = null;
 
@@ -125,12 +135,16 @@ namespace Itach.Succession
             bool isDestination = false;
             SectionNode node;
 
+            // 移動開始イベント発信
+            processStart?.Invoke(this, EventArgs.Empty);
+
             // Goto
             if (prevState == State.Idling || prevState == State.Initializing)
             {
                 node = GetNode(lastDepartedSectionId, nowDepth);
                 if (node != null)
                 {
+                    currentSectionId = new SectionId(lastDepartedSectionId.GetPathFromDepth(nowDepth + 1));
                     node.section.id = node.id;
                     var e = node.section.AtSectionGoto();
                     while (e.MoveNext()) yield return e.Current;
@@ -156,6 +170,7 @@ namespace Itach.Succession
                 node = GetNode(lastDepartedSectionId, nowDepth--);
                 if (node != null)
                 {
+                    currentSectionId = new SectionId(lastDepartedSectionId.GetPathFromDepth(nowDepth + 2));
                     node.section.id = node.id;
                     var e = node.section.AtSectionUnload();
                     while (e.MoveNext()) yield return e.Current;
@@ -175,6 +190,7 @@ namespace Itach.Succession
                 node = GetNode(destinedSectionId, ++nowDepth);
                 if (node != null)
                 {
+                    currentSectionId = new SectionId(destinedSectionId.GetPathFromDepth(nowDepth + 1));
                     node.section.id = node.id;
                     var e = node.section.AtSectionLoad();
                     while (e.MoveNext()) yield return e.Current;
@@ -192,6 +208,7 @@ namespace Itach.Succession
             node = GetNode(destinedSectionId, destinedDepth);
             if (node != null)
             {
+                currentSectionId = destinedSectionId;
                 node.section.id = node.id;
                 var e = node.section.AtSectionInit();
                 while (e.MoveNext()) yield return e.Current;
@@ -204,7 +221,13 @@ namespace Itach.Succession
             }
 
             state = State.Idling;
-            currentSectionId = destinedSectionId;
+
+            // 移動終了イベント発信
+            processComplete?.Invoke(this, EventArgs.Empty);
+
+            departedSectionId
+                = currentSectionId
+                    = destinedSectionId;
         }
 
         /// <summary>
@@ -226,17 +249,31 @@ namespace Itach.Succession
             gotoManageCoroutine = rootObject.StartCoroutine(GotoManage(lastDepartedSectionId, state));
         }
 
+        /// <summary>
+        /// パスからセクションを取得
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public SectionBase GetSection(string path)
+        {
+            List<string> pathList = GetPathList();
+            foreach (var item in pathList)
+            {
+                if (item == path)
+                {
+                    var secId = new SectionId(path);
+                    return GetNode(secId, secId.hierarchies.Count - 1).section;
+                }
+            }
+            return null;
+        }
 
         /// <summary>
         /// 全セクションへのパスを出力
         /// </summary>
         public void OutputAllSectionPath()
         {
-            List<string> pathList = new List<string>();
-            foreach (var node in nodes)
-            {
-                node.AddPathList("/", pathList);
-            }
+            List<string> pathList = GetPathList();
             foreach (var item in pathList)
             {
                 Debug.Log("[All section path] : " + item);
@@ -251,16 +288,26 @@ namespace Itach.Succession
         {
             if (path == "") return true;
 
-            List<string> pathList = new List<string>();
-            foreach (var node in nodes)
-            {
-                node.AddPathList("/", pathList);
-            }
+            List<string> pathList = GetPathList();
             foreach (var item in pathList)
             {
                 if (item == path) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 存在するパス全てを返す
+        /// </summary>
+        /// <returns></returns>
+        private List<string> GetPathList()
+        {
+            List<string> pathList = new List<string>();
+            foreach (var node in nodes)
+            {
+                node.AddPathList("/", pathList);
+            }
+            return pathList;
         }
 
         /// <summary>
