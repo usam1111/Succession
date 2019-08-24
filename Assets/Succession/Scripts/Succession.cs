@@ -221,12 +221,13 @@ namespace Itach.Succession
             }
 
             state = State.Idling;
-            departedSectionId
-                = currentSectionId
-                    = destinedSectionId;
 
             // 移動終了イベント発信
             processComplete?.Invoke(this, EventArgs.Empty);
+
+            departedSectionId
+                = currentSectionId
+                    = destinedSectionId;
         }
 
         /// <summary>
