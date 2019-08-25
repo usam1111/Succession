@@ -2,6 +2,12 @@
 
 「Succession」はAS3のProgressionを参考にして作られた、Unity用の画面遷移フレームワークです。
 
+## UnityPackage
+UnityPackageは以下からダウンロードできます。
+- [Succession_v1.0.0.unitypackage](https://github.com/usam1111/Succession/blob/master/Succession_v1.0.0.unitypackage)
+- 必要環境
+  - Scripting Runtime Version : .Net4 以上(C#6を使用しています)
+
 ## Progression と Succession の違い
 - Progressionは汎用的で大規模なフレームワークですが、SuccessionはProgressionでいうSceneのような、画面遷移の機能だけに特化しています。
 - Sceneという名称はUnityでは紛らわしいので、代わりにSectionという名称を使用しています。
@@ -197,17 +203,17 @@ public class Sample1 : MonoBehaviour
 ### 3. セクションの移動
 
 SuccessionのGoto関数を実行し、引数に移動先のパス渡すことで、セクションの移動が開始されます。
+セクション移動中でもGoto関数で別の移動先を指定することで移動先を切り替えることができます。
 ```cs
 suc.Goto("/a1/b2");
 ```
-セクション移動中でもGoto関数で別の移動先を指定することで移動先を切り替えることができます。
 
 相対パスで移動するには
-- /a1 → /a1/b1
+- /a1 → /a1/b2
 ```cs
 suc.Goto("./b2");
 ```
-- /a1/b1 → /a1/b1
+- /a1/b1 → /a1/b2
 ```cs
 suc.Goto("../b2");
 ```
