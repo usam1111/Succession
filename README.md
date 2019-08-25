@@ -157,7 +157,7 @@ public class SectionA : SectionBase
 **各「AtSectionLoad, AtSectionInit, AtSectionGoto, AtSectionUnload」の処理ではコルーチンを使いますが、IEnumerator.MoveNextでコルーチン終了を管理しているので、「yield return」を使わずにコルーチンを終わらせることで、フレームをまたがずにコルーチンが終了し、次の画面遷移の進行へ進めることもできます。**
 
 サンプルシーンでは、SectionAの他にSectionBとSectionCも作ってゲームオブジェクトにコンポーネント登録します。
-今回は分かりやすいように分かりやすいようにシーン管理クラス「Sample1」とセクションクラス「SectionA」「SectionB」「SectionC」は同じゲームオブジェクトにコンポーネント登録しています。
+今回は分かりやすいようにシーン管理クラス「Sample1」とセクションクラス「SectionA」「SectionB」「SectionC」は同じゲームオブジェクトにコンポーネント登録しています。
 
 ![](https://raw.githubusercontent.com/usam1111/Succession/master/Screenshots/scenemanager_inspector.png)
 
