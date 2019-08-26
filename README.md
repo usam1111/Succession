@@ -2,11 +2,13 @@
 
 「Succession」はAS3のProgressionを参考にして作られた、Unity用の画面遷移フレームワークです。
 
+![](https://img.shields.io/badge/Unity-2018.3-red.svg)
+![](https://img.shields.io/badge/.NET-4.x-yellow.svg)
+[![](https://img.shields.io/badge/License-MIT-green)](https://github.com/usam1111/Succession/blob/master/LICENSE)
+
 ## UnityPackage
 UnityPackageは以下からダウンロードできます。
 - [Succession_v1.0.0.unitypackage](https://github.com/usam1111/Succession/blob/master/Succession_v1.0.0.unitypackage)
-- 必要環境
-  - Scripting Runtime Version : .Net4 以上(C#6を使用しています)
 
 ## Progression と Succession の違い
 - Progressionは汎用的で大規模なフレームワークですが、SuccessionはProgressionでいうSceneのような、画面遷移の機能だけに特化しています。
